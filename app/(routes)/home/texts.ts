@@ -10,7 +10,7 @@ export const homeTexts = {
   categories: {
     healthSurvey: 'แบบสำรวจสุขภาพ',
     transport: 'เดินทาง',
-    bookAppointment: 'จองนัดหมาย',
+    bookAppointment: 'การนัดหมาย',
     aiAssistant: 'ผู้ช่วย AI'
   },
 

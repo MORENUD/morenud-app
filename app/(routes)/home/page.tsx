@@ -49,10 +49,6 @@ const getUserScanData = (): UserScanData | null => {
 
 
 
-
-
-
-
 export default function HomePage() {
   // Check for appointment notification on component mount
   useEffect(() => {

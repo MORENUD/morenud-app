@@ -20,7 +20,7 @@ export const healthCheckTexts = {
   previousButton: 'ก่อนหน้า',
   nextButton: 'ถัดไป',
   viewResultButton: 'ดูผลลัพธ์',
-  nextStepButton: 'Next Step',
+  nextStepButton: 'ขั้นตอนถัดไป',
   
   // Health score
   riskScore: 'คะแนนความเสี่ยง:',
