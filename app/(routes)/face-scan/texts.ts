@@ -17,6 +17,13 @@ export const faceScanTexts = {
   imageUploaded: "Image has been sent to server",
   redirecting: "Redirecting to health check page",
   
+  // Loading states
+  takingPhoto: "กำลังถ่ายรูป...",
+  uploadingImage: "กำลังส่งรูปภาพ...",
+  processingImage: "กำลังประมวลผลรูปภาพ...",
+  uploadSuccess: "ส่งรูปภาพสำเร็จแล้ว!",
+  uploadError: "เกิดข้อผิดพลาดในการส่งรูปภาพ",
+  
   // Buttons
   startScanButton: "Start Face Scan",
   captureButton: "เพิ่มรูปถ่าย",

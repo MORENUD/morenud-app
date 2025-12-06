@@ -6,14 +6,66 @@ import Image from 'next/image';
 import { faceScanTexts } from './texts';
 import PageHeader from '../../../components/PageHeader';
 
+// Types for user data management
+interface ScanResult {
+  id?: string;
+  status?: string;
+  message?: string;
+  data?: Record<string, unknown>;
+}
+
+interface UserScanData {
+  scanResult?: ScanResult;
+  capturedImage?: string;
+  scanStatus: 'pending' | 'completed' | 'failed';
+  uploadTimestamp: string;
+  scanTimestamp: string;
+  scanDate: string;
+}
+
+// Helper functions for user data management
+const saveUserScanData = (data: Partial<UserScanData>) => {
+  try {
+    localStorage.setItem('userScanData', JSON.stringify({
+      ...data,
+      scanTimestamp: new Date().toISOString(),
+      scanDate: new Date().toLocaleDateString('th-TH')
+    }));
+    console.log('User scan data saved successfully');
+  } catch (error) {
+    console.error('Error saving user scan data:', error);
+  }
+};
+
+export const getUserScanData = (): UserScanData | null => {
+  try {
+    const data = localStorage.getItem('userScanData');
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    console.error('Error getting user scan data:', error);
+    return null;
+  }
+};
+
+export const clearUserScanData = () => {
+  try {
+    localStorage.removeItem('userScanData');
+    console.log('User scan data cleared');
+  } catch (error) {
+    console.error('Error clearing user scan data:', error);
+  }
+};
+
 export default function FaceScanPage() {
-  const router = useRouter();
+  const router = useRouter(); // Will be used for navigation after scan
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [scanComplete, setScanComplete] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const [error, setError] = useState<string>('');
   const [capturedImage, setCapturedImage] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -82,46 +134,59 @@ export default function FaceScanPage() {
     });
   };
 
-  const startScan = () => {
+  const startScan = async () => {
     if (!isCameraReady) return;
     
-    setIsScanning(true);
-    setScanProgress(0);
-    setScanComplete(false);
+    try {
+      // Start photo capture phase
+      setIsScanning(true);
+      setScanProgress(0);
+      setScanComplete(false);
+      setError('');
 
-    // Simulate scanning progress
-    const progressInterval = setInterval(async () => {
-      setScanProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
+      // Quick progress animation for taking photo
+      const progressInterval = setInterval(() => {
+        setScanProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(progressInterval);
+            return 100;
+          }
+          return prev + 20;
+        });
+      }, 100);
+
+      // Wait for progress animation and capture image
+      setTimeout(async () => {
+        const base64Image = await captureImageAsBase64();
+        if (base64Image) {
+          setCapturedImage(base64Image);
           setIsScanning(false);
           setScanComplete(true);
           
-          // Capture image when scan is complete
-          captureImageAsBase64().then((base64Image) => {
-            if (base64Image) {
-              setCapturedImage(base64Image);
-              console.log('Face image captured as base64:', base64Image);
-              
-              // Here you can send the base64 image to your backend API
-              sendImageToServer(base64Image);
-            }
-          });
-          
-          // Auto redirect after successful scan
-          setTimeout(() => {
-            router.push('/health-check');
-          }, 2000);
-          
-          return 100;
+          // Send image to server immediately after capture
+          await sendImageToServer(base64Image);
+        } else {
+          setError('Failed to capture image');
+          setIsScanning(false);
         }
-        return prev + 2;
-      });
-    }, 100);
+      }, 500);
+      
+    } catch (err) {
+      console.error('Error during scan:', err);
+      setError('เกิดข้อผิดพลาดในการถ่ายรูป');
+      setIsScanning(false);
+    }
   };
 
+
+  //edit later
   const sendImageToServer = async (base64Image: string) => {
     try {
+      setIsUploading(true);
+      setUploadSuccess(false);
+      setError('');
+      
+      
       const response = await fetch('/api/face-scan', {
         method: 'POST',
         headers: {
@@ -136,15 +201,33 @@ export default function FaceScanPage() {
       if (response.ok) {
         const result = await response.json();
         console.log('Image sent successfully:', result);
+        
+        // Save user scan data to localStorage
+        saveUserScanData({
+          scanResult: result,
+        });
+        
+        setUploadSuccess(true);
+        
+        // Auto redirect after successful upload
+        setTimeout(() => {
+          router.push('/home');
+        }, 2000);
+
       } else {
-        console.error('Failed to send image to server');
+        const errorData = await response.json();
+        console.error('Failed to send image to server:', errorData);
+        setError(faceScanTexts.uploadError);
       }
     } catch (error) {
       console.error('Error sending image:', error);
+      setError(faceScanTexts.uploadError);
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -161,21 +244,18 @@ export default function FaceScanPage() {
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const base64String = e.target?.result as string;
       if (base64String) {
         setCapturedImage(base64String);
         console.log('File uploaded as base64:', base64String.substring(0, 100) + '...');
-        sendImageToServer(base64String);
         
-        // Show success state
+        // Show success state and send to server
         setScanComplete(true);
         setError('');
         
-        // Auto redirect after successful upload
-        setTimeout(() => {
-          router.push('/health-check');
-        }, 2000);
+        // Send image to server
+        await sendImageToServer(base64String);
       }
     };
     reader.readAsDataURL(file);
@@ -244,8 +324,10 @@ export default function FaceScanPage() {
                   {/* Face Detection Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <div className={`relative w-48 h-48 border-4 rounded-full transition-all duration-300 ${
-                      scanComplete 
+                      uploadSuccess 
                         ? 'border-green-500 shadow-lg shadow-green-500/30' 
+                        : (isUploading || scanComplete)
+                        ? 'border-blue-500 shadow-lg shadow-blue-500/30' 
                         : isScanning 
                         ? 'border-blue-500 shadow-lg shadow-blue-500/30' 
                         : 'border-white/70'
@@ -259,10 +341,22 @@ export default function FaceScanPage() {
 
                       {/* Center Icon */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        {scanComplete ? (
+                        {uploadSuccess ? (
                           <div className="text-green-500">
                             <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                        ) : isUploading ? (
+                          <div className="text-blue-500">
+                            <svg className="w-8 h-8 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                          </div>
+                        ) : (scanComplete && capturedImage) ? (
+                          <div className="text-blue-500">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
                             </svg>
                           </div>
                         ) : isScanning ? (
@@ -288,7 +382,7 @@ export default function FaceScanPage() {
                     <div className="absolute bottom-4 left-4 right-4">
                       <div className="bg-black/50 rounded-lg p-3">
                         <div className="flex items-center justify-between text-white text-sm mb-2">
-                          <span>{faceScanTexts.scanning}</span>
+                          <span>{faceScanTexts.takingPhoto}</span>
                           <span>{scanProgress}%</span>
                         </div>
                         <div className="w-full bg-white/20 rounded-full h-2">
@@ -301,8 +395,23 @@ export default function FaceScanPage() {
                     </div>
                   )}
 
+                  {/* Uploading Progress */}
+                  {isUploading && (
+                    <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center">
+                      <div className="bg-white/95 rounded-xl p-6 text-center shadow-lg">
+                        <div className="text-blue-500 mb-2">
+                          <svg className="w-12 h-12 mx-auto animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                        </div>
+                        <h3 className="font-semibold text-gray-800 mb-1">{faceScanTexts.uploadingImage}</h3>
+                        <p className="text-gray-600 text-sm">{faceScanTexts.processingImage}</p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Success Message */}
-                  {scanComplete && (
+                  {uploadSuccess && (
                     <div className="absolute inset-0 bg-green-500/10 flex items-center justify-center">
                       <div className="bg-white/95 rounded-xl p-6 text-center shadow-lg">
                         <div className="text-green-500 mb-2">
@@ -310,8 +419,7 @@ export default function FaceScanPage() {
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         </div>
-                        <h3 className="font-semibold text-gray-800 mb-1">{faceScanTexts.scanSuccess}</h3>
-                        <p className="text-gray-600 text-sm">{faceScanTexts.imageUploaded}</p>
+                        <h3 className="font-semibold text-gray-800 mb-1">{faceScanTexts.uploadSuccess}</h3>
                         <p className="text-gray-600 text-sm">{faceScanTexts.redirecting}</p>
                       </div>
                     </div>
@@ -325,24 +433,29 @@ export default function FaceScanPage() {
           <div className="text-center space-y-4">
             <button
               onClick={startScan}
-              disabled={!isCameraReady || isScanning || scanComplete || !!error}
+              disabled={!isCameraReady || isScanning || isUploading || uploadSuccess || !!error}
               className={`btn btn-lg w-full ${
-                scanComplete 
+                uploadSuccess 
                   ? 'btn-success' 
                   : 'btn-primary'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              {scanComplete ? (
+              {uploadSuccess ? (
                 <>
                   <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  {faceScanTexts.scanSuccess}
+                  {faceScanTexts.uploadSuccess}
+                </>
+              ) : isUploading ? (
+                <>
+                  <span className="loading loading-spinner loading-sm mr-2"></span>
+                  {faceScanTexts.uploadingImage}
                 </>
               ) : isScanning ? (
                 <>
                   <span className="loading loading-spinner loading-sm mr-2"></span>
-                  {faceScanTexts.scanning}
+                  {faceScanTexts.takingPhoto}
                 </>
               ) : (
                 <>
@@ -356,10 +469,11 @@ export default function FaceScanPage() {
             </button>
 
             {/* File Upload Button */}
-            {!isScanning && !scanComplete && (
+            {!isScanning && !isUploading && !uploadSuccess && (
               <button
                 onClick={triggerFileUpload}
-                className="btn btn-outline btn-sm w-full"
+                disabled={!!error}
+                className="btn btn-outline btn-sm w-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -376,23 +490,6 @@ export default function FaceScanPage() {
               accept="image/*"
               className="hidden"
             />
-
-            {/* Image Preview */}
-            {/* {capturedImage && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mb-2 text-center">{faceScanTexts.capturedImageLabel}</p>
-                <Image
-                  src={capturedImage} 
-                  alt="Captured face" 
-                  width={96}
-                  height={96}
-                  className="rounded-full mx-auto object-cover border-2 border-gray-300"
-                />
-                <p className="text-xs text-gray-500 mt-2 text-center break-all">
-                  {capturedImage.substring(0, 50)}...
-                </p>
-              </div>
-            )} */}
 
             {/* Tips */}
             <div className="text-center text-sm text-gray-500 space-y-1">

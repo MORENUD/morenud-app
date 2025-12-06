@@ -29,17 +29,25 @@ export async function POST(request: NextRequest) {
     const imageBuffer = Buffer.from(base64Data, 'base64');
     console.log('Image size:', imageBuffer.length, 'bytes');
 
-    // For now, just return success response
-    return NextResponse.json({
+    // Simulate processing time (1-2 seconds)
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 1000));
+
+    // Mock response with user data
+    const mockResponse = {
+      user_name: "Peter",
+      disease: "Typhoid",
+      appointment_day: 21,
+      _debug: {
+        file: "Peter.jpg",
+        score: 0.3
+      },
       success: true,
-      message: 'Face scan image received successfully',
+      message: 'Face scan processed successfully',
       imageSize: imageBuffer.length,
-      timestamp: timestamp,
-      // You might want to return additional data like:
-      // - processed image URL
-      // - face detection results
-      // - user ID or session ID
-    });
+      timestamp: timestamp
+    };
+
+    return NextResponse.json(mockResponse);
 
   } catch (error) {
     console.error('Error processing face scan:', error);
