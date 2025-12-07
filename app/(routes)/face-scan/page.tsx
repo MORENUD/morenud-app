@@ -12,6 +12,13 @@ interface ScanResult {
   status?: string;
   message?: string;
   data?: Record<string, unknown>;
+  error?: string;
+  // Additional properties that might come from the face recognition API
+  user_name?: string;
+  disease?: string;
+  appointment_day?: number;
+  _debug?: Record<string, unknown>;
+  success?: boolean;
 }
 
 interface UserScanData {
@@ -179,32 +186,34 @@ export default function FaceScanPage() {
   };
 
 
-  //edit later
   const sendImageToServer = async (base64Image: string) => {
     try {
       setIsUploading(true);
       setUploadSuccess(false);
       setError('');
       
+      // Extract base64 data without the data URL prefix
+      const base64Data = base64Image.replace(/^data:image\/[a-z]+;base64,/, '');
       
-      const response = await fetch('/api/face-scan', {
+      const response = await fetch('https://simple-face-recognition.onrender.com/recognize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          image: base64Image,
-          timestamp: new Date().toISOString(),
+          image_base64: base64Data,
         }),
       });
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Image sent successfully:', result);
+        console.log('Face recognition API response:', result);
         
         // Save user scan data to localStorage
         saveUserScanData({
           scanResult: result,
+          capturedImage: base64Image,
+          scanStatus: 'completed'
         });
         
         setUploadSuccess(true);
@@ -215,13 +224,27 @@ export default function FaceScanPage() {
         }, 2000);
 
       } else {
-        const errorData = await response.json();
-        console.error('Failed to send image to server:', errorData);
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Failed to send image to face recognition API:', errorData);
         setError(faceScanTexts.uploadError);
+        
+        // Save failed scan data
+        saveUserScanData({
+          scanResult: errorData,
+          capturedImage: base64Image,
+          scanStatus: 'failed'
+        });
       }
     } catch (error) {
-      console.error('Error sending image:', error);
+      console.error('Error sending image to face recognition API:', error);
       setError(faceScanTexts.uploadError);
+      
+      // Save failed scan data
+      saveUserScanData({
+        scanResult: { error: error instanceof Error ? error.message : 'Network error' },
+        capturedImage: base64Image,
+        scanStatus: 'failed'
+      });
     } finally {
       setIsUploading(false);
     }

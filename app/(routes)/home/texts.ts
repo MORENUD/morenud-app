@@ -23,9 +23,8 @@ export const homeTexts = {
 
   // Medical specialties
   specialties: {
-    cardiologist: 'แพทย์โรคหัวใจ',
-    neurology: 'แพทย์โรคประสาท',
-    dentist: 'ทันตแพทย์'
+    typhoid: 'แพทย์ทั่วไป (GP)',
+    diabetes: 'แพทย์อายุรกรรมทั่วไป'
   },
 
   // Time and date
@@ -96,8 +95,8 @@ export const mockCategories = [
 export const mockAppointments = [
   {
     id: 1,
-    doctor: 'ดร. มาสการ์ ซาฮาริดิน',
-    specialtyKey: 'cardiologist' as keyof typeof homeTexts.specialties,
+    doctor: 'ดร. สมศักดิ์ ศศิธรากิจ',
+    specialtyKey: 'typhoid' as keyof typeof homeTexts.specialties,
     dateKey: 'tomorrow' as keyof typeof homeTexts.dateTime,
     time: '10:00',
     timeFormat: 'am' as keyof typeof homeTexts.dateTime,
@@ -107,21 +106,11 @@ export const mockAppointments = [
   {
     id: 2,
     doctor: 'ดร. ซาฮารา ซียิวา',
-    specialtyKey: 'neurology' as keyof typeof homeTexts.specialties,
+    specialtyKey: 'diabetes' as keyof typeof homeTexts.specialties,
     date: '9 ธ.ค. 2568',
     time: '2:30',
     timeFormat: 'pm' as keyof typeof homeTexts.dateTime,
     status: 'confirmed' as const,
-    isUrgent: false
-  },
-  {
-    id: 3,
-    doctor: 'ดร. จอห์น สมิธ',
-    specialtyKey: 'dentist' as keyof typeof homeTexts.specialties,
-    date: '12 ธ.ค. 2568',
-    time: '9:00',
-    timeFormat: 'am' as keyof typeof homeTexts.dateTime,
-    status: 'pending' as const,
     isUrgent: false
   }
 ];

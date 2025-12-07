@@ -87,7 +87,16 @@ const encodeDataForURL = (data: UserHealthData): string => {
 export default function ChatbotPage() {
   const [userData, setUserData] = useState<UserHealthData>({});
   const [isLoading, setIsLoading] = useState(true);
-  const streamlitUrl = 'http://localhost:8501'; // Fixed URL
+  const typhoidStreamlitUrl = 'https://medical-frontend-wh8v.onrender.com/?user_name=Peter&disease=Typhoid&alert=0.1'; 
+  const diseaseStreamlitUrl = 'https://medical-frontend-wh8v.onrender.com/?user_name=Sarah&disease=Diabetes&alert=0.1';
+  
+  // กำหนด URL ตาม disease ที่ตรวจพบ
+  const getStreamlitUrl = (disease?: string): string => {
+    if (disease === 'typhoid') {
+      return typhoidStreamlitUrl;
+    }
+    return diseaseStreamlitUrl; // default สำหรับโรคอื่นๆ
+  }; 
 
   useEffect(() => {
     const initializeData = () => {
@@ -114,15 +123,16 @@ export default function ChatbotPage() {
 
   // Always show iframe - embedded Streamlit
   const encodedData = encodeDataForURL(userData);
+  const streamlitUrl = getStreamlitUrl(userData.disease);
   const iframeUrl = `${streamlitUrl}?data=${encodedData}&source=morenud-app&embedded=true`;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="h-screen bg-gray-50 flex flex-col">
       <PageHeader 
         title='AI Chatbot'
         backButtonText="กลับ"
       />
-      <div className="flex-1">
+      <div className="flex-1 overflow-hidden">
         <iframe
           src={iframeUrl}
           className="w-full h-full border-none"

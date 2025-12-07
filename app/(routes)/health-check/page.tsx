@@ -43,6 +43,13 @@ interface QuestionAnswer {
   value: number;
 }
 
+interface ApiResult {
+  prediction_class: number;
+  prediction_label: string;
+  threshold_used: number;
+  is_above_threshold: boolean;
+}
+
 // Helper function to get user data
 const getUserScanData = (): UserScanData | null => {
   if (typeof window === 'undefined') return null;
@@ -81,6 +88,8 @@ export default function HealthCheckPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
   const [healthScore, setHealthScore] = useState(0);
+  const [apiResult, setApiResult] = useState<ApiResult | null>(null);
+  const [isHighRisk, setIsHighRisk] = useState(false);
 
   useEffect(() => {
     const loadUserData = () => {
@@ -143,7 +152,7 @@ export default function HealthCheckPage() {
     }
   };
 
-  const calculateHealthScore = () => {
+  const calculateHealthScore = async () => {
     const totalScore = answers.reduce((sum, answer) => {
       return sum + (answer?.value || 0);
     }, 0);
@@ -151,11 +160,64 @@ export default function HealthCheckPage() {
     const maxPossibleScore = questions.length; // Each question max value is 1
     const percentage = (totalScore / maxPossibleScore) * 100;
     
-    setHealthScore(percentage);
-    setIsCompleted(true);
+    // Prepare features array for API call
+    const features = answers.map(answer => answer?.value || 0);
     
-    // Save health check results to localStorage
     try {
+      // Call appropriate API based on disease
+      const apiEndpoint = disease.toLowerCase() === 'diabetes' 
+        ? 'https://symptom-classification-1.onrender.com/predict/diabetes'
+        : 'https://symptom-classification-1.onrender.com/predict/typhoid';
+      
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          features: features
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('API call failed');
+      }
+      
+      const apiResult = await response.json();
+      console.log('API Response:', apiResult);
+      
+      // Determine risk level based on API response
+      const highRisk = apiResult.prediction_label !== 'Negative'
+      
+      // Update health score based on API result
+      const apiBasedScore = highRisk ? 80 : 20; // High risk = 80%, Low risk = 20%
+      
+      setHealthScore(apiBasedScore);
+      setApiResult(apiResult);
+      setIsHighRisk(highRisk);
+      
+      // Save health check results to localStorage with API result
+      const healthCheckResults = {
+        disease,
+        userName,
+        answers,
+        healthScore: apiBasedScore,
+        apiResult,
+        isHighRisk: highRisk,
+        completedAt: new Date().toISOString(),
+        totalQuestions: questions.length,
+        positiveSymptoms: totalScore,
+        features
+      };
+      
+      localStorage.setItem('healthCheckResults', JSON.stringify(healthCheckResults));
+      
+    } catch (error) {
+      console.error('Error calling prediction API:', error);
+      
+      // Fallback to original calculation if API fails
+      setHealthScore(percentage);
+      
       const healthCheckResults = {
         disease,
         userName,
@@ -163,13 +225,14 @@ export default function HealthCheckPage() {
         healthScore: percentage,
         completedAt: new Date().toISOString(),
         totalQuestions: questions.length,
-        positiveSymptoms: totalScore
+        positiveSymptoms: totalScore,
+        apiError: true
       };
       
       localStorage.setItem('healthCheckResults', JSON.stringify(healthCheckResults));
-    } catch (error) {
-      console.error('Error saving health check results:', error);
     }
+    
+    setIsCompleted(true);
   };
 
   const getHealthScoreColor = (score: number) => {
@@ -226,6 +289,19 @@ export default function HealthCheckPage() {
               <p className="text-gray-700 text-sm">
                 {getHealthScoreMessage(healthScore)}
               </p>
+              
+              {apiResult && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600 mb-2">
+                    <strong>ผลการวิเคราะห์:</strong> {apiResult.prediction_label}
+                  </p>
+                  {apiResult.prediction_class !== undefined && (
+                    <p className="text-sm text-gray-600">
+                      <strong>ระดับความเสี่ยง:</strong> {isHighRisk ? 'เสี่ยงสูง' : 'ปกติ'}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           
