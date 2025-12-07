@@ -90,6 +90,7 @@ export default function HealthCheckPage() {
   const [healthScore, setHealthScore] = useState(0);
   const [apiResult, setApiResult] = useState<ApiResult | null>(null);
   const [isHighRisk, setIsHighRisk] = useState(false);
+  const [isApiLoading, setIsApiLoading] = useState(false);
 
   useEffect(() => {
     const loadUserData = () => {
@@ -153,6 +154,8 @@ export default function HealthCheckPage() {
   };
 
   const calculateHealthScore = async () => {
+    setIsApiLoading(true);
+    
     const totalScore = answers.reduce((sum, answer) => {
       return sum + (answer?.value || 0);
     }, 0);
@@ -230,6 +233,8 @@ export default function HealthCheckPage() {
       };
       
       localStorage.setItem('healthCheckResults', JSON.stringify(healthCheckResults));
+    } finally {
+      setIsApiLoading(false);
     }
     
     setIsCompleted(true);
@@ -323,11 +328,24 @@ export default function HealthCheckPage() {
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
       <PageHeader 
         title={healthCheckTexts.pageTitle}
         backButtonText={healthCheckTexts.backButton}
       />
+      
+      {/* API Loading Overlay */}
+      {isApiLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 mx-4 text-center shadow-xl">
+            <div className="loading loading-spinner loading-lg text-purple-500 mb-4"></div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">กำลังวิเคราะห์ผล</h3>
+            <p className="text-gray-600 text-sm">
+              กรุณารอสักครู่ ระบบกำลังประมวลผลและวิเคราะห์อาการของคุณ
+            </p>
+          </div>
+        </div>
+      )}
       
       <div className="p-6">
         {/* Progress */}
@@ -401,10 +419,17 @@ export default function HealthCheckPage() {
           
           <button
             onClick={goToNextQuestion}
-            disabled={!currentAnswer}
+            disabled={!currentAnswer || isApiLoading}
             className="btn btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {currentQuestionIndex === questions.length - 1 ? healthCheckTexts.viewResultButton : healthCheckTexts.nextButton}
+            {isApiLoading ? (
+              <span className="flex items-center gap-2">
+                <span className="loading loading-spinner loading-sm"></span>
+                กำลังประมวลผล...
+              </span>
+            ) : (
+              currentQuestionIndex === questions.length - 1 ? healthCheckTexts.viewResultButton : healthCheckTexts.nextButton
+            )}
           </button>
         </div>
       </div>
