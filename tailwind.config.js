@@ -32,7 +32,7 @@ const config = {
       },
       "dark", // เก็บ dark theme ไว้ในกรณีที่ต้องการใช้ภายหลัง
     ],
-    base: true,
+    base: false,
     styled: true,
     utils: true,
     prefix: "",
