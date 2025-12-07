@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
 
@@ -23,7 +23,7 @@ interface AppointmentData {
   instructions: string;
 }
 
-export default function AppointmentCard() {
+function AppointmentCardContent() {
   const [appointmentData, setAppointmentData] = useState<AppointmentData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -248,5 +248,25 @@ export default function AppointmentCard() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AppointmentCard() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 p-4">
+        <PageHeader title="ใบนัดหมาย" showBackButton />
+        <div className="max-w-md mx-auto mt-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="text-center">
+              <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+              <p className="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <AppointmentCardContent />
+    </Suspense>
   );
 }
