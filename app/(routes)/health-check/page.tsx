@@ -87,9 +87,7 @@ export default function HealthCheckPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [healthScore, setHealthScore] = useState(0);
   const [apiResult, setApiResult] = useState<ApiResult | null>(null);
-  const [isHighRisk, setIsHighRisk] = useState(false);
   const [isApiLoading, setIsApiLoading] = useState(false);
 
   useEffect(() => {
@@ -160,9 +158,6 @@ export default function HealthCheckPage() {
       return sum + (answer?.value || 0);
     }, 0);
     
-    const maxPossibleScore = questions.length; // Each question max value is 1
-    const percentage = (totalScore / maxPossibleScore) * 100;
-    
     // Prepare features array for API call
     const features = answers.map(answer => answer?.value || 0);
     
@@ -189,24 +184,15 @@ export default function HealthCheckPage() {
       const apiResult = await response.json();
       console.log('API Response:', apiResult);
       
-      // Determine risk level based on API response
-      const highRisk = apiResult.prediction_label !== 'Negative'
-      
-      // Update health score based on API result
-      const apiBasedScore = highRisk ? 80 : 20; // High risk = 80%, Low risk = 20%
-      
-      setHealthScore(apiBasedScore);
+      // Store API result
       setApiResult(apiResult);
-      setIsHighRisk(highRisk);
       
       // Save health check results to localStorage with API result
       const healthCheckResults = {
         disease,
         userName,
         answers,
-        healthScore: apiBasedScore,
         apiResult,
-        isHighRisk: highRisk,
         completedAt: new Date().toISOString(),
         totalQuestions: questions.length,
         positiveSymptoms: totalScore,
@@ -218,14 +204,10 @@ export default function HealthCheckPage() {
     } catch (error) {
       console.error('Error calling prediction API:', error);
       
-      // Fallback to original calculation if API fails
-      setHealthScore(percentage);
-      
       const healthCheckResults = {
         disease,
         userName,
         answers,
-        healthScore: percentage,
         completedAt: new Date().toISOString(),
         totalQuestions: questions.length,
         positiveSymptoms: totalScore,
@@ -240,17 +222,7 @@ export default function HealthCheckPage() {
     setIsCompleted(true);
   };
 
-  const getHealthScoreColor = (score: number) => {
-    if (score >= 70) return 'text-red-500';
-    if (score >= 40) return 'text-yellow-500';
-    return 'text-green-500';
-  };
 
-  const getHealthScoreMessage = (score: number) => {
-    if (score >= 70) return healthCheckTexts.healthMessages.high;
-    if (score >= 40) return healthCheckTexts.healthMessages.medium;
-    return healthCheckTexts.healthMessages.low;
-  };
 
   if (isLoading) {
     return (
@@ -283,28 +255,28 @@ export default function HealthCheckPage() {
             </div>
             
             <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gray-100 mb-4">
-                <span className={`text-3xl font-bold ${getHealthScoreColor(healthScore)}`}>
-                  {Math.round(healthScore)}%
-                </span>
-              </div>
-              <p className={`font-semibold ${getHealthScoreColor(healthScore)} mb-2`}>
-                {healthCheckTexts.riskScore} {Math.round(healthScore)}%
-              </p>
-              <p className="text-gray-700 text-sm">
-                {getHealthScoreMessage(healthScore)}
-              </p>
               
               {apiResult && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-2">
-                    <strong>ผลการวิเคราะห์:</strong> {apiResult.prediction_label}
-                  </p>
-                  {apiResult.prediction_class !== undefined && (
+                <div className="p-6 bg-gray-50 rounded-lg">
+                  <div className="text-center">
+                    <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 ${
+                      apiResult.prediction_label !== 'Negative' ? 'bg-red-100' : 'bg-green-100'
+                    }`}>
+                      <span className={`text-2xl ${
+                        apiResult.prediction_label !== 'Negative' ? 'text-red-600' : 'text-green-600'
+                      }`}>
+                        {apiResult.prediction_label !== 'Negative' ? '⚠️' : '✅'}
+                      </span>
+                    </div>
+                    <h3 className={`text-xl font-bold mb-2 ${
+                      apiResult.prediction_label !== 'Negative' ? 'text-red-600' : 'text-green-600'
+                    }`}>
+                      {apiResult.prediction_label !== 'Negative' ? 'เสี่ยงสูง' : 'เสี่ยงน้อย'}
+                    </h3>
                     <p className="text-sm text-gray-600">
-                      <strong>ระดับความเสี่ยง:</strong> {isHighRisk ? 'เสี่ยงสูง' : 'ปกติ'}
+                      ผลการวิเคราะห์: {apiResult.prediction_label}
                     </p>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
@@ -336,8 +308,8 @@ export default function HealthCheckPage() {
       
       {/* API Loading Overlay */}
       {isApiLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 mx-4 text-center shadow-xl">
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 mx-4 text-center shadow-xl border">
             <div className="loading loading-spinner loading-lg text-purple-500 mb-4"></div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">กำลังวิเคราะห์ผล</h3>
             <p className="text-gray-600 text-sm">
