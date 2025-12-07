@@ -1,6 +1,8 @@
 'use client'
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { loginTexts } from './texts';
+import faceIdImage from '../../../public/pic/face-id.png';
 
 export default function Login() {
   const router = useRouter();
@@ -19,9 +21,26 @@ export default function Login() {
         </p>
       </div>
 
-      {/* Circle placeholder */}
-      <div className="w-48 h-48 bg-gray-300 rounded-full mb-12 flex items-center justify-center">
-        <div className="w-40 h-40 bg-gray-400 rounded-full opacity-50"></div>
+      {/* Face ID Image */}
+      <div className="relative mb-16">
+        <div className="w-56 h-56 bg-linear-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center shadow-2xl border-4 border-white relative overflow-hidden">
+          {/* Animated ring */}
+          <div className="absolute inset-0 rounded-full border-4 border-blue-400 animate-pulse opacity-30"></div>
+          <div className="absolute inset-2 rounded-full border-2 border-purple-300 animate-ping opacity-20"></div>
+
+          <div className="w-44 h-44 bg-white rounded-full flex items-center justify-center shadow-inner relative z-10">
+            <Image
+              src={faceIdImage}
+              alt="Face ID"
+              width={140}
+              height={140}
+              className="object-contain filter drop-shadow-md"
+            />
+          </div>
+        </div>
+
+        {/* Glowing effect */}
+        <div className="absolute inset-0 w-56 h-56 bg-linear-to-r from-blue-400 to-purple-400 rounded-full opacity-20 blur-xl -z-10"></div>
       </div>
 
       {/* Welcome section */}
@@ -31,7 +50,7 @@ export default function Login() {
       </div>
 
       {/* Scan button */}
-      <button 
+      <button
         onClick={handleScanFace}
         className="btn btn-primary w-full"
       >
