@@ -25,8 +25,9 @@ const getUserHealthData = (): UserHealthData => {
     
     if (scanData) {
       const scan = JSON.parse(scanData);
+      // Try to get disease from different possible locations
+      userData.disease = scan.scanResult?.disease || scan.disease;
       userData.userName = scan.scanResult?.user_name || scan.user_name;
-      userData.disease = scan.scanResult?.disease;
       userData.scanResult = scan.scanResult;
     }
     
@@ -91,12 +92,12 @@ export default function ChatbotPage() {
   const diseaseStreamlitUrl = 'https://medical-frontend-wh8v.onrender.com/?user_name=Sarah&disease=Diabetes&alert=0.1';
   
   // กำหนด URL ตาม disease ที่ตรวจพบ
-  const getStreamlitUrl = (disease?: string): string => {
-    if (disease === 'typhoid') {
-      return typhoidStreamlitUrl;
-    }
-    return diseaseStreamlitUrl; // default สำหรับโรคอื่นๆ
-  }; 
+const getStreamlitUrl = (disease?: string): string => {
+  if (disease?.toLowerCase() === 'typhoid') {
+    return typhoidStreamlitUrl;
+  }
+  return diseaseStreamlitUrl;
+};
 
   useEffect(() => {
     const initializeData = () => {
@@ -109,6 +110,7 @@ export default function ChatbotPage() {
     
     initializeData();
   }, []);
+
 
   if (isLoading) {
     return (
@@ -125,7 +127,6 @@ export default function ChatbotPage() {
   const encodedData = encodeDataForURL(userData);
   const streamlitUrl = getStreamlitUrl(userData.disease);
   const iframeUrl = `${streamlitUrl}?data=${encodedData}&source=morenud-app&embedded=true`;
-
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       <PageHeader 
