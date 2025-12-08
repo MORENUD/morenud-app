@@ -20,14 +20,15 @@ export default function SelectCar() {
   const [selectedCarType, setSelectedCarType] = useState('comfort');
   const [selectedCaregiver, setSelectedCaregiver] = useState('basic');
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(() => {
-    // Get route info from sessionStorage during initialization
-    const storedRoute = sessionStorage.getItem('rideRoute');
-    if (storedRoute) {
-      try {
-        return JSON.parse(storedRoute);
-      } catch (error) {
-        console.error('Error parsing route info:', error);
-        return null;
+    // Initialize from sessionStorage only on client side
+    if (typeof window !== 'undefined') {
+      const storedRoute = sessionStorage.getItem('rideRoute');
+      if (storedRoute) {
+        try {
+          return JSON.parse(storedRoute);
+        } catch (error) {
+          console.error('Error parsing route info:', error);
+        }
       }
     }
     return null;
