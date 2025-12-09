@@ -1,11 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
 import Swal from 'sweetalert2';
 import { bookAppointmentTexts } from './texts';
 
-export default function BookAppointment() {
+function BookAppointmentContent() {
+  const searchParams = useSearchParams();
+  
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0];
+  
   const [formData, setFormData] = useState({
     doctorName: '',
     appointmentDate: '',
@@ -16,8 +22,28 @@ export default function BookAppointment() {
     comment: ''
   });
 
-  // Get today's date in YYYY-MM-DD format
-  const today = new Date().toISOString().split('T')[0];
+  // Load datetime from query params on mount
+  useEffect(() => {
+    const datetimeParam = searchParams.get('datetime');
+    if (datetimeParam) {
+      try {
+        const date = new Date(datetimeParam);
+        if (!isNaN(date.getTime())) {
+          const isoString = date.toISOString();
+          const dateStr = isoString.split('T')[0];
+          const timeStr = isoString.split('T')[1]?.substring(0, 5) || '';
+          
+          setFormData(prev => ({
+            ...prev,
+            appointmentDate: dateStr,
+            appointmentTime: timeStr
+          }));
+        }
+      } catch {
+        // Invalid datetime, skip
+      }
+    }
+  }, [searchParams]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -182,5 +208,13 @@ export default function BookAppointment() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function BookAppointment() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50" />}>
+      <BookAppointmentContent />
+    </Suspense>
   );
 }

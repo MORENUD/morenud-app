@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
 import AppointmentCard from '../../../components/AppointmentCard';
+import AppointmentCalendar from '../../../components/AppointmentCalendar';
 import CategoryCard from '../../../components/CategoryCard';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -37,7 +38,7 @@ interface UserScanData {
 // Helper function to get user data
 const getUserScanData = (): UserScanData | null => {
   if (typeof window === 'undefined') return null;
-  
+
   try {
     const data = localStorage.getItem('userScanData');
     return data ? JSON.parse(data) : null;
@@ -54,15 +55,15 @@ export default function HomePage() {
   useEffect(() => {
     const checkAppointment = () => {
       const userData = getUserScanData();
-      
+
       if (userData?.scanResult?.appointment_day && userData.scanResult.appointment_day > 0) {
         const appointmentDays = userData.scanResult.appointment_day;
         const userName = userData.scanResult.user_name || userData.user_name || homeTexts.notification.defaultUserName;
-        
+
         // Check if notification was already shown today
         const notificationKey = `appointment_notification_${userData.scanResult.id || 'default'}_${new Date().toDateString()}`;
         const hasShownToday = localStorage.getItem(notificationKey);
-        
+
         if (!hasShownToday) {
           Swal.fire({
             title: homeTexts.notification.title,
@@ -83,21 +84,21 @@ export default function HomePage() {
               htmlContainer: 'text-gray-700'
             }
           });
-          
+
           // Mark notification as shown for today
           localStorage.setItem(notificationKey, 'true');
         }
       }
     };
-    
+
     checkAppointment();
   }, []);
 
   return (
     <>
 
-        {/* Search Bar */}
-        {/* <div className="px-6 mb-6">
+      {/* Search Bar */}
+      {/* <div className="px-6 mb-6">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input 
@@ -115,86 +116,72 @@ export default function HomePage() {
           </div>
         </div> */}
 
-        {/* MORENUD Banner */}
-        <div className="mx-6 mb-8">
-          <div className="bg-linear-to-r from-purple-400 to-purple-500 rounded-2xl p-6 relative overflow-hidden">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <h3 className="text-white font-semibold text-lg mb-2">
-                  {homeTexts.banner.title}
-                </h3>
-                <p className="text-purple-100 text-sm leading-relaxed">
-                  {homeTexts.banner.description}
-                </p>
-              </div>
-              <div className="shrink-0 ml-4">
-                <Image 
-                  src={stethoscopeImage} 
-                  alt={homeTexts.altText.stethoscope}
-                  width={60}
-                  height={60}
-                  className="object-contain"
-                />
-              </div>
+      {/* MORENUD Banner */}
+      <div className="mx-6 mb-8">
+        <div className="bg-linear-to-r from-purple-400 to-purple-500 rounded-2xl p-6 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <h3 className="text-white font-semibold text-lg mb-2">
+                {homeTexts.banner.title}
+              </h3>
+              <p className="text-purple-100 text-sm leading-relaxed">
+                {homeTexts.banner.description}
+              </p>
+            </div>
+            <div className="shrink-0 ml-4">
+              <Image
+                src={stethoscopeImage}
+                alt={homeTexts.altText.stethoscope}
+                width={60}
+                height={60}
+                className="object-contain"
+              />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Categories */}
-        <div className="px-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">{homeTexts.sections.categories}</h3>
-          </div>
-          
-          <div className="grid grid-cols-4 gap-4">
-            {mockCategories.map((category) => {
-              const categoryImage = category.id === 1 ? healthImage : 
-                                  category.id === 2 ? transportImage : 
-                                  category.id === 3 ? appointmentImage : chatBotImage;
-              return (
-                <Link key={category.id} href={category.link}>
-                  <CategoryCard
-                    name={homeTexts.categories[category.nameKey]}
-                    bgColor={category.bgColor}
-                    iconColor={category.iconColor}
-                    iconShape={category.iconShape}
-                    image={categoryImage}
-                  />
-                </Link>
-              );
-            })}
-          </div>
+      {/* Categories */}
+      <div className="px-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">{homeTexts.sections.categories}</h3>
         </div>
 
-        {/* Upcoming appointments */}
-        <div className="px-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">{homeTexts.sections.upcomingAppointments}</h3>
-            <button className="text-purple-500 text-sm">{homeTexts.sections.seeAll}</button>
-          </div>
-          
-          <div className="space-y-4">
-            {mockAppointments.map((appointment) => {
-              const displayDate = appointment.dateKey ? homeTexts.dateTime[appointment.dateKey] : appointment.date;
-              const displayTime = `${appointment.time} ${homeTexts.dateTime[appointment.timeFormat]}`;
-              
-              return (
-                <AppointmentCard
-                  key={appointment.id}
-                  doctor={appointment.doctor}
-                  specialty={homeTexts.specialties[appointment.specialtyKey]}
-                  date={displayDate}
-                  time={displayTime}
-                  status={appointment.status}
-                  isUrgent={appointment.isUrgent}
+        <div className="grid grid-cols-4 gap-4">
+          {mockCategories.map((category) => {
+            const categoryImage = category.id === 1 ? healthImage :
+              category.id === 2 ? transportImage :
+                category.id === 3 ? appointmentImage : chatBotImage;
+            return (
+              <Link key={category.id} href={category.link}>
+                <CategoryCard
+                  name={homeTexts.categories[category.nameKey]}
+                  bgColor={category.bgColor}
+                  iconColor={category.iconColor}
+                  iconShape={category.iconShape}
+                  image={categoryImage}
                 />
-              );
-            })}
-          </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Upcoming appointments */}
+      <div className="px-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">{homeTexts.sections.upcomingAppointments}</h3>
         </div>
 
-        {/* Bottom spacing */}
-        <div className="h-20"></div>
+        <AppointmentCalendar
+          appointments={mockAppointments}
+          dateTimeTexts={homeTexts.dateTime}
+          specialties={homeTexts.specialties}
+        />
+      </div>
+
+      {/* Bottom spacing */}
+      <div className="h-20"></div>
     </>
   );
 }
