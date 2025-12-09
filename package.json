@@ -9,6 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fullcalendar/daygrid": "^6.1.19",
+    "@fullcalendar/interaction": "^6.1.19",
+    "@fullcalendar/react": "^6.1.19",
+    "@fullcalendar/timegrid": "^6.1.19",
     "@react-google-maps/api": "^2.20.7",
     "autoprefixer": "^10.4.22",
     "lucide-react": "^0.556.0",

@@ -11,6 +11,7 @@ interface UserHealthData {
   answers?: unknown[];
   scanResult?: unknown;
   completedAt?: string;
+  alertThreshold?: number;
 }
 
 // Helper functions
@@ -36,6 +37,7 @@ const getUserHealthData = (): UserHealthData => {
       userData.healthScore = health.healthScore;
       userData.answers = health.answers;
       userData.completedAt = health.completedAt;
+      userData.alertThreshold = health.apiResult?.threshold_used;
     }
     
     return userData;
@@ -88,16 +90,12 @@ const encodeDataForURL = (data: UserHealthData): string => {
 export default function ChatbotPage() {
   const [userData, setUserData] = useState<UserHealthData>({});
   const [isLoading, setIsLoading] = useState(true);
-  const typhoidStreamlitUrl = 'https://medical-frontend-wh8v.onrender.com/?user_name=Peter&disease=Typhoid&alert=0.1'; 
-  const diseaseStreamlitUrl = 'https://medical-frontend-wh8v.onrender.com/?user_name=Sarah&disease=Diabetes&alert=0.1';
   
-  // กำหนด URL ตาม disease ที่ตรวจพบ
-const getStreamlitUrl = (disease?: string): string => {
-  if (disease?.toLowerCase() === 'typhoid') {
-    return typhoidStreamlitUrl;
-  }
-  return diseaseStreamlitUrl;
-};
+  // กำหนด URL ตาม disease ที่ตรวจพบ และ alert จาก threshold_used
+  const getStreamlitUrl = (disease?: string, alertThreshold?: number): string => {
+    const alert = alertThreshold ?? 0.1;
+    return `https://medical-frontend-wh8v.onrender.com/?user_name=${userData.userName || 'User'}&disease=${disease || 'Unknown'}&alert=${alert || 0.1}`;
+  };
 
   useEffect(() => {
     const initializeData = () => {
@@ -125,8 +123,8 @@ const getStreamlitUrl = (disease?: string): string => {
 
   // Always show iframe - embedded Streamlit
   const encodedData = encodeDataForURL(userData);
-  const streamlitUrl = getStreamlitUrl(userData.disease);
-  const iframeUrl = `${streamlitUrl}?data=${encodedData}&source=morenud-app&embedded=true`;
+  const streamlitUrl = getStreamlitUrl(userData.disease, userData.alertThreshold);
+  const iframeUrl = `${streamlitUrl}&data=${encodedData}&source=morenud-app&embedded=true`;
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       <PageHeader 
