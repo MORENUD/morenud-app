@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Swal from 'sweetalert2';
 import { loginTexts, mockUsers } from './texts';
 
 export default function BookingLogin() {
@@ -11,6 +12,34 @@ export default function BookingLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+
+  const showConsentDialog = async (): Promise<boolean> => {
+    const result = await Swal.fire({
+      title: 'ข้อตกลงการใช้บริการ',
+      html: `
+        <div class="text-left text-sm leading-relaxed">
+          <p class="mb-3">
+            ข้าพเจ้ายินยอมให้แอปพลิเคชันเก็บและใช้ข้อมูลส่วนบุคคล รวมถึงข้อมูลด้านสุขภาพที่ข้าพเจ้าให้ไว้ เพื่อการประเมิน การแนะนำ และการให้บริการผ่านระบบ
+          </p>
+          <p>
+            ข้าพเจ้าทราบดีว่าข้อมูลที่ได้จากระบบเป็นเพียงการประมวลผลเบื้องต้น ไม่ใช่การวินิจฉัยทางการแพทย์ และไม่สามารถใช้ทดแทนคำแนะนำจากแพทย์หรือผู้เชี่ยวชาญได้
+          </p>
+        </div>
+      `,
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'ยอมรับ',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      width: '90%',
+      customClass: {
+        popup: 'text-sm'
+      }
+    });
+    
+    return result.isConfirmed;
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +67,16 @@ export default function BookingLogin() {
       if (user.type === 'caregiver') {
         router.push('/caregiver/home');
       } else {
-        router.push('/face-scan'); 
+        // Show consent dialog for regular users before going to face-scan
+        const userConsented = await showConsentDialog();
+        if (userConsented) {
+          // Store consent in localStorage
+          localStorage.setItem('userConsent', 'true');
+          router.push('/face-scan'); 
+        } else {
+          // User declined consent, stay on login page
+          setError('กรุณายอมรับข้อตกลงการใช้บริการเพื่อดำเนินการต่อ');
+        }
       }
     } else {
       setError(loginTexts.invalidCredentials);

@@ -75,6 +75,7 @@ export default function FaceScanPage() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [error, setError] = useState<string>('');
   const [capturedImage, setCapturedImage] = useState<string>('');
+  const [hasConsented, setHasConsented] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const startCamera = async () => {
@@ -107,10 +108,19 @@ export default function FaceScanPage() {
   };
 
   useEffect(() => {
-    const initCamera = async () => {
-      await startCamera();
+    const initializeApp = async () => {
+      // Check if user has already consented during login
+      const userConsent = localStorage.getItem('userConsent');
+      if (userConsent === 'true') {
+        setHasConsented(true);
+        await startCamera();
+      } else {
+        // No consent found, redirect back to login
+        router.push('/login');
+      }
     };
-    initCamera();
+    
+    initializeApp();
     
     return () => {
       stopCamera();
@@ -141,8 +151,10 @@ export default function FaceScanPage() {
     });
   };
 
+
+
   const startScan = async () => {
-    if (!isCameraReady) return;
+    if (!isCameraReady || !hasConsented) return;
     
     try {
       // Start photo capture phase
@@ -252,7 +264,7 @@ export default function FaceScanPage() {
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || !hasConsented) return;
 
     // Check if it's an image file
     if (!file.type.startsWith('image/')) {
@@ -456,7 +468,7 @@ export default function FaceScanPage() {
           <div className="text-center space-y-4">
             <button
               onClick={startScan}
-              disabled={!isCameraReady || isScanning || isUploading || uploadSuccess || !!error}
+              disabled={!isCameraReady || !hasConsented || isScanning || isUploading || uploadSuccess || !!error}
               className={`btn btn-lg w-full ${
                 uploadSuccess 
                   ? 'btn-success' 
@@ -495,7 +507,7 @@ export default function FaceScanPage() {
             {!isScanning && !isUploading && !uploadSuccess && (
               <button
                 onClick={triggerFileUpload}
-                disabled={!!error}
+                disabled={!hasConsented || !!error}
                 className="btn btn-outline btn-sm w-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
