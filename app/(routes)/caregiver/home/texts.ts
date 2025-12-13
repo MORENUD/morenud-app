@@ -9,7 +9,7 @@ export const homeTexts = {
   // Category names
   categories: {
     healthSurvey: 'แบบสำรวจสุขภาพ',
-    transport: 'บริการผู้ดูแล',
+    transport: 'เดินทาง',
     bookAppointment: 'การนัดหมาย',
     aiAssistant: 'ผู้ช่วย AI'
   },
@@ -59,28 +59,12 @@ export const homeTexts = {
 // Mock data with Thai translations
 export const mockCategories = [
   {
-    id: 1,
-    nameKey: 'healthSurvey' as keyof typeof homeTexts.categories,
-    bgColor: 'bg-blue-200 ',
-    iconColor: 'bg-purple-500',
-    iconShape: 'square' as const,
-    link: '/health-check'
-  },
-  {
-    id: 2,
-    nameKey: 'transport' as keyof typeof homeTexts.categories,
-    bgColor: 'bg-green-200',
-    iconColor: 'bg-red-500',
-    iconShape: 'circle' as const,
-    link: '/transport'
-  },
-  {
     id: 3,
     nameKey: 'bookAppointment' as keyof typeof homeTexts.categories,
     bgColor: 'bg-red-200',
     iconColor: 'bg-blue-500',
     iconShape: 'square' as const,
-    link: '/book-appointment/list'
+    link: '/caregiver/book-appointment/list'
   },
   {
     id: 4,
@@ -88,29 +72,31 @@ export const mockCategories = [
     bgColor: 'bg-purple-200',
     iconColor: 'bg-green-500',
     iconShape: 'circle' as const,
-    link: '/chatbot'
+    link: '/caregiver/chatbot'
   }
 ];
 
 export const mockAppointments = [
   {
     id: 1,
-    doctor: 'ดร. สมศักดิ์ ศศิธรากิจ',
+    doctor: 'Peter Johnson',
     specialtyKey: 'typhoid' as keyof typeof homeTexts.specialties,
     dateKey: 'tomorrow' as keyof typeof homeTexts.dateTime,
     time: '10:00',
     timeFormat: 'am' as keyof typeof homeTexts.dateTime,
     status: 'soon' as const,
-    isUrgent: true
+    isUrgent: true,
+    location: 'Bangkok General Hospital'
   },
   {
     id: 2,
-    doctor: 'ดร. ซาฮารา ซียิวา',
+    doctor: 'Sahara Siyawa',
     specialtyKey: 'diabetes' as keyof typeof homeTexts.specialties,
     date: '9 ธ.ค. 2568',
     time: '2:30',
     timeFormat: 'pm' as keyof typeof homeTexts.dateTime,
     status: 'confirmed' as const,
-    isUrgent: false
+    isUrgent: false,
+    location: 'Bangkok General Hospital'
   }
 ];

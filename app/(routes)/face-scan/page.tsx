@@ -194,8 +194,8 @@ export default function FaceScanPage() {
       
       // Extract base64 data without the data URL prefix
       const base64Data = base64Image.replace(/^data:image\/[a-z]+;base64,/, '');
-      
-      const response = await fetch('https://face-recognition-1-22cf.onrender.com/recognize', {
+      // const response = await fetch('https://face-recognition-1-22cf.onrender.com/recognize', {
+      const response = await fetch('https://face-recognition-1-22cf.onrender.com/recognize_mock', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
