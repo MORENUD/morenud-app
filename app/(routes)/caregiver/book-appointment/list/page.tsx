@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
 import AppointmentListCard from '@/components/AppointmentListCard';
-import { Appointment } from '@/app/api/appointments/shared';
+import AppointmentCaregiverListCard from '@/components/AppointmentCaregiverListCard';
+import { CaregiverAppointment } from '@/app/api/caregiver-schedules/shared';
 
 export default function AppointmentList() {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointments, setAppointments] = useState<CaregiverAppointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function AppointmentList() {
   const fetchAppointments = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/appointments');
+      const response = await fetch('/api/caregiver-schedules');
       
       if (!response.ok) {
         throw new Error('ไม่สามารถดึงข้อมูลรายการนัดหมายได้');
@@ -47,7 +48,7 @@ export default function AppointmentList() {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-md mx-auto bg-white min-h-screen">
-          <PageHeader title="รายการใบนัดหมาย" showBackButton={true} className="bg-blue-50" showActionButton={true} onActionClick={handleNewAppointment} />
+          <PageHeader title="รายการใบนัดหมาย" showBackButton={true} className="bg-blue-50" />
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
@@ -60,7 +61,7 @@ export default function AppointmentList() {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-md mx-auto bg-white min-h-screen">
-          <PageHeader title="รายการใบนัดหมาย" showBackButton={true} className="bg-blue-50" showActionButton={true} onActionClick={handleNewAppointment} />
+          <PageHeader title="รายการใบนัดหมาย" showBackButton={true} className="bg-blue-50" />
           <div className="p-6 text-center">
             <div className="text-red-500 text-lg mb-4">⚠️</div>
             <p className="text-red-600 mb-4">{error}</p>
@@ -78,14 +79,12 @@ export default function AppointmentList() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-md mx-auto bg-white min-h-screen">
+      <div className="mx-auto bg-white min-h-screen">
         {/* Header */}
         <PageHeader 
           title="รายการใบนัดหมาย" 
           showBackButton={true} 
           className="bg-blue-50"
-          showActionButton={true}
-          onActionClick={handleNewAppointment}
         />
 
         {/* Content */}
@@ -106,7 +105,7 @@ export default function AppointmentList() {
           ) : (
             <div className="space-y-4">
               {appointments.map((appointment) => (
-                <AppointmentListCard
+                <AppointmentCaregiverListCard
                   key={appointment.id}
                   appointment={appointment}
                   onClick={handleViewAppointment}

@@ -1,15 +1,16 @@
 import { useRouter } from 'next/navigation';
-import { Appointment } from '@/app/api/appointments/shared';
+import { CaregiverAppointment } from '@/app/api/caregiver-schedules/shared';
 
 interface AppointmentListCardProps {
-  appointment: Appointment;
+  appointment: CaregiverAppointment;
   onClick?: (appointmentId: string) => void;
 }
 
-export default function AppointmentListCard({ appointment, onClick }: AppointmentListCardProps) {
+export default function AppointmentCaregiverListCard({ appointment, onClick }: AppointmentListCardProps) {
   const router = useRouter();
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'ไม่ระบุวันที่';
     const date = new Date(dateString);
     return date.toLocaleDateString('th-TH', {
       year: 'numeric',
@@ -19,7 +20,8 @@ export default function AppointmentListCard({ appointment, onClick }: Appointmen
     });
   };
 
-  const formatTime = (timeString: string) => {
+  const formatTime = (timeString?: string) => {
+    if (!timeString) return 'ไม่ระบุเวลา';
     return `${timeString} น.`;
   };
 
@@ -59,8 +61,7 @@ export default function AppointmentListCard({ appointment, onClick }: Appointmen
 
   return (
     <div
-      className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-      onClick={handleClick}
+      className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
     >
       <div className="p-4">
         {/* Header Row */}
@@ -77,7 +78,7 @@ export default function AppointmentListCard({ appointment, onClick }: Appointmen
             <div className="text-lg font-bold text-blue-600">
               {appointment.queueNumber}
             </div>
-            <div className="text-xs text-gray-500">หมายเลขคิว</div>
+            <div className="text-xs text-gray-500">หมายเลขรายการ</div>
           </div>
         </div>
 
@@ -85,7 +86,7 @@ export default function AppointmentListCard({ appointment, onClick }: Appointmen
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-gray-500">👨‍⚕️</span>
-            <span className="font-medium">{appointment.doctorName}</span>
+            <span className="font-medium">{appointment.patientName}</span>
             <span className="text-gray-500">•</span>
             <span className="text-gray-600">{appointment.department}</span>
           </div>
@@ -93,11 +94,11 @@ export default function AppointmentListCard({ appointment, onClick }: Appointmen
           <div className="flex items-center gap-2 text-sm">
             <span className="text-gray-500">📅</span>
             <span className="font-medium text-blue-600">
-              {formatDate(appointment.appointmentDate)}
+              {formatDate(appointment.pickupDate)}
             </span>
             <span className="text-gray-500">•</span>
             <span className="font-medium text-blue-600">
-              {formatTime(appointment.appointmentTime)}
+              {formatTime(appointment.pickupTime)}
             </span>
           </div>
           
@@ -113,7 +114,7 @@ export default function AppointmentListCard({ appointment, onClick }: Appointmen
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-100">
+        {/* <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-100">
           <div className="text-xs text-gray-500">
             สร้างเมื่อ: {new Date(appointment.createdAt).toLocaleDateString('th-TH')}
           </div>
@@ -121,7 +122,7 @@ export default function AppointmentListCard({ appointment, onClick }: Appointmen
             ดูใบนัด
             <span>→</span>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
