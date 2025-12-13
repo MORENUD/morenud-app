@@ -56,4 +56,5 @@ export const mockAppointments: { [key: string]: Appointment } = {
     createdAt: '2024-12-06T14:15:00Z',
     instructions: 'กรุณามาก่อนเวลานัด 30 นาที และแสดงใบนัดหมายนี้ที่เคาน์เตอร์ลงทะเบียน'
   }
+  
 };

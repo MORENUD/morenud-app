@@ -47,7 +47,7 @@ export default function AppointmentList() {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-md mx-auto bg-white min-h-screen">
-          <PageHeader title="รายการใบนัดหมาย" showBackButton={true} className="bg-blue-50" />
+          <PageHeader title="รายการใบนัดหมาย" showBackButton={true} className="bg-blue-50" showActionButton={true} onActionClick={handleNewAppointment} />
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
@@ -60,7 +60,7 @@ export default function AppointmentList() {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-md mx-auto bg-white min-h-screen">
-          <PageHeader title="รายการใบนัดหมาย" showBackButton={true} className="bg-blue-50" />
+          <PageHeader title="รายการใบนัดหมาย" showBackButton={true} className="bg-blue-50" showActionButton={true} onActionClick={handleNewAppointment} />
           <div className="p-6 text-center">
             <div className="text-red-500 text-lg mb-4">⚠️</div>
             <p className="text-red-600 mb-4">{error}</p>
@@ -84,6 +84,8 @@ export default function AppointmentList() {
           title="รายการใบนัดหมาย" 
           showBackButton={true} 
           className="bg-blue-50"
+          showActionButton={true}
+          onActionClick={handleNewAppointment}
         />
 
         {/* Content */}
