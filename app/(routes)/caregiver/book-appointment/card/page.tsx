@@ -3,25 +3,10 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
-
-interface CaregiverScheduleData {
-  id: string;
-  bookingNumber: string;
-  patientName: string;
-  pickupDate: string;
-  pickupTime: string;
-  phone: string;
-  pickupAddress: string;
-  destinationAddress: string;
-  comment: string;
-  status: string;
-  createdAt: string;
-  caregiverName?: string;
-  estimatedDuration?: string;
-}
+import { CaregiverSchedule } from '@/app/api/caregiver-schedules/shared';
 
 function CaregiverScheduleCardContent() {
-  const [scheduleData, setScheduleData] = useState<CaregiverScheduleData | null>(null);
+  const [scheduleData, setScheduleData] = useState<CaregiverSchedule | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();

@@ -1,33 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockCaregiverSchedules } from '../shared';
+import { mockCaregiverSchedules, mockCaregiverAppointments } from '../shared';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
+    const url = new URL(request.url);
+    const type = url.searchParams.get('type');
+    const { id } = await params;
     
-    const { id: scheduleId } = await params;
-    const schedule = mockCaregiverSchedules[scheduleId];
+    if (type === 'schedules') {
+      const schedule = mockCaregiverSchedules[id];
+      if (!schedule) {
+        return NextResponse.json(
+          { success: false, error: 'Schedule not found' },
+          { status: 404 }
+        );
+      }
+      
+      return NextResponse.json({
+        success: true,
+        data: schedule
+      });
+    }
     
-    if (!schedule) {
+    // Get appointment by ID
+    const appointment = mockCaregiverAppointments[id];
+    if (!appointment) {
       return NextResponse.json(
-        { error: 'ไม่พบรายการตารางงานผู้ดูแลที่ระบุ' },
+        { success: false, error: 'Appointment not found' },
         { status: 404 }
       );
     }
     
     return NextResponse.json({
       success: true,
-      data: schedule
+      data: appointment
     });
-    
   } catch (error) {
-    console.error('Error fetching caregiver schedule:', error);
+    console.error('Error fetching caregiver data:', error);
     return NextResponse.json(
-      { error: 'เกิดข้อผิดพลาดในการดึงข้อมูลตารางงานผู้ดูแล' },
+      { 
+        success: false, 
+        error: 'Failed to fetch caregiver data' 
+      },
       { status: 500 }
     );
   }
@@ -38,32 +55,54 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: scheduleId } = await params;
-    const updates = await request.json();
+    const body = await request.json();
+    const url = new URL(request.url);
+    const type = url.searchParams.get('type');
+    const { id } = await params;
     
-    if (!mockCaregiverSchedules[scheduleId]) {
+    if (type === 'schedules') {
+      if (!mockCaregiverSchedules[id]) {
+        return NextResponse.json(
+          { success: false, error: 'Schedule not found' },
+          { status: 404 }
+        );
+      }
+      
+      mockCaregiverSchedules[id] = {
+        ...mockCaregiverSchedules[id],
+        ...body
+      };
+      
+      return NextResponse.json({
+        success: true,
+        data: mockCaregiverSchedules[id]
+      });
+    }
+    
+    // Update appointment
+    if (!mockCaregiverAppointments[id]) {
       return NextResponse.json(
-        { error: 'ไม่พบรายการตารางงานผู้ดูแลที่ระบุ' },
+        { success: false, error: 'Appointment not found' },
         { status: 404 }
       );
     }
     
-    // Update the schedule
-    mockCaregiverSchedules[scheduleId] = {
-      ...mockCaregiverSchedules[scheduleId],
-      ...updates,
-      id: scheduleId // Ensure ID doesn't change
+    mockCaregiverAppointments[id] = {
+      ...mockCaregiverAppointments[id],
+      ...body
     };
     
     return NextResponse.json({
       success: true,
-      data: mockCaregiverSchedules[scheduleId]
+      data: mockCaregiverAppointments[id]
     });
-    
   } catch (error) {
-    console.error('Error updating caregiver schedule:', error);
+    console.error('Error updating caregiver data:', error);
     return NextResponse.json(
-      { error: 'เกิดข้อผิดพลาดในการอัปเดตตารางงานผู้ดูแล' },
+      { 
+        success: false, 
+        error: 'Failed to update caregiver data' 
+      },
       { status: 500 }
     );
   }
@@ -74,27 +113,47 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: scheduleId } = await params;
+    const url = new URL(request.url);
+    const type = url.searchParams.get('type');
+    const { id } = await params;
     
-    if (!mockCaregiverSchedules[scheduleId]) {
+    if (type === 'schedules') {
+      if (!mockCaregiverSchedules[id]) {
+        return NextResponse.json(
+          { success: false, error: 'Schedule not found' },
+          { status: 404 }
+        );
+      }
+      
+      delete mockCaregiverSchedules[id];
+      
+      return NextResponse.json({
+        success: true,
+        message: 'Schedule deleted successfully'
+      });
+    }
+    
+    // Delete appointment
+    if (!mockCaregiverAppointments[id]) {
       return NextResponse.json(
-        { error: 'ไม่พบรายการตารางงานผู้ดูแลที่ระบุ' },
+        { success: false, error: 'Appointment not found' },
         { status: 404 }
       );
     }
     
-    // Delete the schedule
-    delete mockCaregiverSchedules[scheduleId];
+    delete mockCaregiverAppointments[id];
     
     return NextResponse.json({
       success: true,
-      message: 'ลบตารางงานผู้ดูแลเรียบร้อยแล้ว'
+      message: 'Appointment deleted successfully'
     });
-    
   } catch (error) {
-    console.error('Error deleting caregiver schedule:', error);
+    console.error('Error deleting caregiver data:', error);
     return NextResponse.json(
-      { error: 'เกิดข้อผิดพลาดในการลบตารางงานผู้ดูแล' },
+      { 
+        success: false, 
+        error: 'Failed to delete caregiver data' 
+      },
       { status: 500 }
     );
   }
