@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageHeader from '../../../components/PageHeader';
-import { diabetesQuestions, typhoidQuestions } from './question-set';
+import { diabetesQuestions } from './question-set';
 import { healthCheckTexts } from './texts';
 
 // Types
@@ -12,7 +12,7 @@ interface ScanResult {
   status?: string;
   message?: string;
   data?: Record<string, unknown>;
-  user_name?: string;
+  name?: string;
   disease?: string;
   appointment_day?: number;
 }
@@ -24,7 +24,7 @@ interface UserScanData {
   uploadTimestamp: string;
   scanTimestamp: string;
   scanDate: string;
-  user_name?: string;
+  name?: string;
 }
 
 interface Question {
@@ -70,10 +70,7 @@ const getQuestionsForDisease = (disease: string): Question[] => {
   switch (normalizedDisease) {
     case 'diabetes':
       return diabetesQuestions;
-    case 'typhoid':
-      return typhoidQuestions;
     default:
-      // Return diabetes questions as default
       return diabetesQuestions;
   }
 };
@@ -102,7 +99,7 @@ export default function HealthCheckPage() {
 
       // Extract disease and user name
       const detectedDisease = data.scanResult.disease || 'diabetes';
-      const detectedUserName = data.scanResult.user_name || data.user_name || 'User';
+      const detectedUserName = data.scanResult.name || data.name || 'User';
       
       setDisease(detectedDisease);
       setUserName(detectedUserName);
@@ -163,10 +160,11 @@ export default function HealthCheckPage() {
     
     try {
       // Call appropriate API based on disease
-      const apiEndpoint = disease.toLowerCase() === 'diabetes' 
-        ? 'https://symptom-classification-1.onrender.com/predict/diabetes'
-        : 'https://symptom-classification-1.onrender.com/predict/typhoid';
+      // const apiEndpoint = disease.toLowerCase() === 'diabetes' 
+      //   ? 'https://symptom-classification-1.onrender.com/predict/diabetes'
+      //   : 'https://symptom-classification-1.onrender.com/predict/typhoid';
       
+      const apiEndpoint = 'https://symptom-classification-brsd.onrender.com/predict_all';
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
@@ -185,7 +183,7 @@ export default function HealthCheckPage() {
       console.log('API Response:', apiResult);
       
       // Store API result
-      setApiResult(apiResult);
+      setApiResult(apiResult.results.alert);
       
       // Save health check results to localStorage with API result
       const healthCheckResults = {
@@ -342,9 +340,9 @@ export default function HealthCheckPage() {
             </div>
             <div>
               <p className="font-semibold text-gray-800">{healthCheckTexts.greeting}{userName}</p>
-              <p className="text-sm text-gray-600">
+              {/* <p className="text-sm text-gray-600">
                 {healthCheckTexts.assessmentFor} <span className="text-purple-600 font-medium">{disease}</span>
-              </p>
+              </p> */}
             </div>
           </div>
         </div>

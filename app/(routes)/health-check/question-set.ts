@@ -259,45 +259,45 @@ export const diabetesQuestions = [
 ];
 
 
-export const typhoidQuestions = [
-  {
-    feature: "toxid_look_(typhos)",
-    question: "คุณรู้สึกอ่อนเพลีย หน้าตาซีดเซียว หรือดูไม่สบายมากกว่าปกติหรือไม่?",
-    options: [
-      { label: "ไม่", value: 0 },
-      { label: "ใช่", value: 1 },
-    ]
-  },
-  {
-    feature: "belly_pain",
-    question: "คุณมีอาการปวดท้องหรือแน่นท้องเป็นประจำหรือไม่?",
-    options: [
-      { label: "ไม่", value: 0 },
-      { label: "ใช่", value: 1 },
-    ]
-  },
-  {
-    feature: "itching",
-    question: "คุณมีอาการคันตามผิวหนังบ่อยหรือไม่?",
-    options: [
-      { label: "ไม่", value: 0 },
-      { label: "ใช่", value: 1 },
-    ]
-  },
-  {
-    feature: "skin_rash",
-    question: "คุณมีผื่นตามผิวหนัง เช่น ผื่นแดงเล็ก ๆ หรือผื่นกระจายหรือไม่?",
-    options: [
-      { label: "ไม่", value: 0 },
-      { label: "ใช่", value: 1 },
-    ]
-  },
-  {
-    feature: "continuous_sneezing",
-    question: "คุณมีอาการจามบ่อยหรือจามติด ๆ กันหรือไม่?",
-    options: [
-      { label: "ไม่", value: 0 },
-      { label: "ใช่", value: 1 },
-    ]
-  }
-];
+// export const typhoidQuestions = [
+//   {
+//     feature: "toxid_look_(typhos)",
+//     question: "คุณรู้สึกอ่อนเพลีย หน้าตาซีดเซียว หรือดูไม่สบายมากกว่าปกติหรือไม่?",
+//     options: [
+//       { label: "ไม่", value: 0 },
+//       { label: "ใช่", value: 1 },
+//     ]
+//   },
+//   {
+//     feature: "belly_pain",
+//     question: "คุณมีอาการปวดท้องหรือแน่นท้องเป็นประจำหรือไม่?",
+//     options: [
+//       { label: "ไม่", value: 0 },
+//       { label: "ใช่", value: 1 },
+//     ]
+//   },
+//   {
+//     feature: "itching",
+//     question: "คุณมีอาการคันตามผิวหนังบ่อยหรือไม่?",
+//     options: [
+//       { label: "ไม่", value: 0 },
+//       { label: "ใช่", value: 1 },
+//     ]
+//   },
+//   {
+//     feature: "skin_rash",
+//     question: "คุณมีผื่นตามผิวหนัง เช่น ผื่นแดงเล็ก ๆ หรือผื่นกระจายหรือไม่?",
+//     options: [
+//       { label: "ไม่", value: 0 },
+//       { label: "ใช่", value: 1 },
+//     ]
+//   },
+//   {
+//     feature: "continuous_sneezing",
+//     question: "คุณมีอาการจามบ่อยหรือจามติด ๆ กันหรือไม่?",
+//     options: [
+//       { label: "ไม่", value: 0 },
+//       { label: "ใช่", value: 1 },
+//     ]
+//   }
+// ];
