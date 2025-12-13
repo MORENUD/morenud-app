@@ -34,17 +34,49 @@
 
 export const bookAppointmentTexts = {
   pageTitle: "เพิ่มการนัดพบแพทย์",
+  selectMethod: {
+    title: "เลือกวิธีการเพิ่มข้อมูล",
+    subtitle: "กรุณาเลือกวิธีที่คุณต้องการใช้",
+    manual: {
+      title: "กรอกข้อมูลด้วยตัวเอง",
+      description: "กรอกข้อมูลการนัดหมายด้วยตนเอง"
+    },
+    ocr: {
+      title: "สแกนใบนัดหมาย",
+      description: "ถ่ายภาพใบนัดหมายเพื่อดึงข้อมูลอัตโนมัติ"
+    }
+  },
   labels: {
+    hn: "หมายเลข HN",
+    confirmationStatus: "สถานะการยืนยัน",
+    doctorName: "ชื่อนามสกุลแพทย์",
+    department: "แผนก",
+    hospital: "โรงพยาบาล",
+    queueNumber: "หมายเลขคิว",
     appointmentDate: "วันที่นัดหมาย",
     appointmentTime: "เวลานัดหมาย",
-    phone: "เบอร์โทรศัพท์"
+    phone: "เบอร์โทรศัพท์",
+    address: "ที่อยู่"
   },
   placeholders: {
+    hn: "AP001235",
+    doctorName: "นพ.สมชาย ใจดี",
+    department: "แผนกอายุรกรรม",
+    hospital: "โรงพยาบาลมอร์นัด",
+    queueNumber: "B-012",
     selectTime: "เลือกเวลา",
-    phone: "+1234567890"
+    phone: "089-567-8901",
+    address: "ที่อยู่ของคุณ"
   },
   buttons: {
-    submit: "ยืนยันการนัดหมาย"
+    submit: "ยืนยันการนัดหมาย",
+    startScan: "เริ่มสแกนใบนัด",
+    retakeScan: "ถ่ายใหม่",
+    confirmOCR: "ยืนยันข้อมูล"
+  },
+  confirmationStatus: {
+    confirmed: "ยืนยันแล้ว",
+    pending: "รอยืนยัน"
   },
   alerts: {
     confirmation: {
@@ -61,6 +93,11 @@ export const bookAppointmentTexts = {
     error: {
       title: "เกิดข้อผิดพลาด!",
       text: "ไม่สามารถทำการนัดหมายได้ กรุณาลองใหม่อีกครั้ง",
+      confirmButton: "ตกลง"
+    },
+    ocrError: {
+      title: "สแกนไม่สำเร็จ!",
+      text: "ไม่สามารถอ่านข้อมูลจากใบนัดหมายได้ กรุณาลองใหม่อีกครั้ง",
       confirmButton: "ตกลง"
     }
   }
