@@ -1,26 +1,8 @@
 import { useRouter } from 'next/navigation';
-
-interface AppointmentData {
-  id: string;
-  appointmentNumber: string;
-  patientName: string;
-  doctorName: string;
-  department: string;
-  appointmentDate: string;
-  appointmentTime: string;
-  phone: string;
-  address: string;
-  hospitalName: string;
-  hospitalAddress: string;
-  hospitalPhone: string;
-  queueNumber: string;
-  status: string;
-  createdAt: string;
-  instructions: string;
-}
+import { Appointment } from '@/app/api/appointments/shared';
 
 interface AppointmentListCardProps {
-  appointment: AppointmentData;
+  appointment: Appointment;
   onClick?: (appointmentId: string) => void;
 }
 

@@ -4,28 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
 import AppointmentListCard from '@/components/AppointmentListCard';
-
-interface AppointmentData {
-  id: string;
-  appointmentNumber: string;
-  patientName: string;
-  doctorName: string;
-  department: string;
-  appointmentDate: string;
-  appointmentTime: string;
-  phone: string;
-  address: string;
-  hospitalName: string;
-  hospitalAddress: string;
-  hospitalPhone: string;
-  queueNumber: string;
-  status: string;
-  createdAt: string;
-  instructions: string;
-}
+import { Appointment } from '@/app/api/appointments/shared';
 
 export default function AppointmentList() {
-  const [appointments, setAppointments] = useState<AppointmentData[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();

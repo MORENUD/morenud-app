@@ -5,28 +5,10 @@ import { useRouter } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
 import AppointmentListCard from '@/components/AppointmentListCard';
 import AppointmentCaregiverListCard from '@/components/AppointmentCaregiverListCard';
-
-interface AppointmentData {
-  id: string;
-  appointmentNumber: string;
-  patientName: string;
-  doctorName: string;
-  department: string;
-  appointmentDate: string;
-  appointmentTime: string;
-  phone: string;
-  address: string;
-  hospitalName: string;
-  hospitalAddress: string;
-  hospitalPhone: string;
-  queueNumber: string;
-  status: string;
-  createdAt: string;
-  instructions: string;
-}
+import { CaregiverAppointment } from '@/app/api/caregiver-schedules/shared';
 
 export default function AppointmentList() {
-  const [appointments, setAppointments] = useState<AppointmentData[]>([]);
+  const [appointments, setAppointments] = useState<CaregiverAppointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -38,7 +20,7 @@ export default function AppointmentList() {
   const fetchAppointments = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/appointments');
+      const response = await fetch('/api/caregiver-schedules');
       
       if (!response.ok) {
         throw new Error('ไม่สามารถดึงข้อมูลรายการนัดหมายได้');

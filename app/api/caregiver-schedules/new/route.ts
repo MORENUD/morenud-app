@@ -1,49 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockCaregiverSchedules, CaregiverSchedule } from '../shared';
+import { mockCaregiverSchedules, mockCaregiverAppointments } from '../shared';
 
 export async function POST(request: NextRequest) {
   try {
-    const scheduleData = await request.json();
+    const body = await request.json();
+    const url = new URL(request.url);
+    const type = url.searchParams.get('type');
     
-    // Generate new ID
-    const newId = (Object.keys(mockCaregiverSchedules).length + 1).toString();
+    if (type === 'schedules') {
+      const newSchedule = {
+        id: Date.now().toString(),
+        bookingNumber: `CS${String(Date.now()).slice(-6)}`,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        ...body
+      };
+      
+      mockCaregiverSchedules[newSchedule.id] = newSchedule;
+      
+      return NextResponse.json({
+        success: true,
+        data: newSchedule,
+        message: 'Caregiver schedule created successfully'
+      });
+    }
     
-    // Generate schedule number
-    const scheduleNumber = `CS${String(Date.now()).slice(-6)}`;
-    
-    // Create new schedule
-    const newSchedule: CaregiverSchedule = {
-      id: newId,
-      scheduleNumber,
-      caregiverName: scheduleData.caregiverName || '',
-      patientName: scheduleData.patientName || '',
-      serviceType: scheduleData.serviceType || '',
-      scheduleDate: scheduleData.scheduleDate || '',
-      scheduleTime: scheduleData.scheduleTime || '',
-      duration: scheduleData.duration || '',
-      phone: scheduleData.phone || '',
-      address: scheduleData.address || '',
-      status: 'confirmed',
+    // Create new caregiver appointment
+    const newAppointment = {
+      id: Date.now().toString(),
+      appointmentNumber: `CG${String(Date.now()).slice(-6)}`,
+      status: 'pending',
       createdAt: new Date().toISOString(),
-      instructions: scheduleData.instructions || 'กรุณาติดต่อผู้ป่วยก่อนมาให้บริการ 30 นาที'
+      ...body
     };
     
-    // Save to mock database
-    mockCaregiverSchedules[newId] = newSchedule;
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+    mockCaregiverAppointments[newAppointment.id] = newAppointment;
     
     return NextResponse.json({
       success: true,
-      data: newSchedule,
-      message: 'สร้างตารางงานผู้ดูแลเรียบร้อยแล้ว'
-    }, { status: 201 });
-    
+      data: newAppointment,
+      message: 'Caregiver appointment created successfully'
+    });
   } catch (error) {
-    console.error('Error creating caregiver schedule:', error);
+    console.error('Error creating caregiver data:', error);
     return NextResponse.json(
-      { error: 'เกิดข้อผิดพลาดในการสร้างตารางงานผู้ดูแล' },
+      { 
+        success: false, 
+        error: 'Failed to create caregiver data' 
+      },
       { status: 500 }
     );
   }

@@ -3,28 +3,10 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
-
-interface AppointmentData {
-  id: string;
-  appointmentNumber: string;
-  patientName: string;
-  doctorName: string;
-  department: string;
-  appointmentDate: string;
-  appointmentTime: string;
-  phone: string;
-  address: string;
-  hospitalName: string;
-  hospitalAddress: string;
-  hospitalPhone: string;
-  queueNumber: string;
-  status: string;
-  createdAt: string;
-  instructions: string;
-}
+import { Appointment } from '@/app/api/appointments/shared';
 
 function AppointmentCardContent() {
-  const [appointmentData, setAppointmentData] = useState<AppointmentData | null>(null);
+  const [appointmentData, setAppointmentData] = useState<Appointment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
