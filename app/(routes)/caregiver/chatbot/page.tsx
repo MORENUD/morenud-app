@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import PageHeader from '../../../components/PageHeader';
+import PageHeader from '../../../../components/PageHeader';
 
 // Types
 interface PredictionResult {
@@ -137,8 +137,8 @@ export default function ChatbotPage() {
   
   // กำหนด URL ตาม disease ที่ตรวจพบ และ alert จาก threshold_used
   const getStreamlitUrl = (): string => {
-    const name = userData.userName || 'Peter';
-    const diseaseParam = userScanData?.scanResult?.disease === 'Blood Pressure' ? 'Blood&20Pressure' : userScanData?.scanResult?.disease !== null ? userScanData?.scanResult?.disease : 'Diabetes';
+    const name = userData.userName || 'User';
+    const diseaseParam = userData.disease || 'Unknown';
     const thresholdUsed = userData.resultApi?.alert?.threshold_used || false;
     const giLiver = userData.resultApi?.gastrointestinal_liver?.prediction_label === 'Positive' ? 'Positive' : 'Negative';
     const cardio = userData.resultApi?.cardiovascular?.prediction_label === 'Positive' ? 'Positive' : 'Negative';
@@ -187,21 +187,63 @@ export default function ChatbotPage() {
     );
   }
 
-  // Always show iframe - embedded Streamlit
-  const encodedData = encodeDataForURL(userData);
-  const streamlitUrl = getStreamlitUrl();
-  const iframeUrl = `${streamlitUrl}&data=${encodedData}&source=morenud-app&embedded=true`;
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       <PageHeader 
         title='AI Chatbot'
         backButtonText="กลับ"
       />
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden relative">
         <iframe
-          src={iframeUrl}
+          srcDoc={`
+            <!DOCTYPE html>
+            <html lang="th">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Helder Chatbot</title>
+              <link rel="stylesheet" href="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css">
+              <script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
+              <style>
+                body {
+                  margin: 0;
+                  padding: 0;
+                  font-family: 'Google Sans', sans-serif;
+                  height: 100vh;
+                  overflow: hidden;
+                }
+                df-messenger {
+                  z-index: 999;
+                  position: fixed;
+                  --df-messenger-font-color: #000;
+                  --df-messenger-font-family: Google Sans;
+                  --df-messenger-chat-background: #f3f6fc;
+                  --df-messenger-message-user-background: #d3e3fd;
+                  --df-messenger-message-bot-background: #fff;
+                  bottom: 0;
+                  right: 0;
+                  top: 0;
+                  left: 0;
+                  width: 100%;
+                  height: 100%;
+                }
+              </style>
+            </head>
+            <body>
+              <df-messenger
+                project-id="gulf-ai-platform-dev"
+                agent-id="c032864b-ef11-4209-8f33-30dfce9d4633"
+                language-code="th"
+                max-query-length="-1">
+                <df-messenger-chat
+                  chat-title="Helder">
+                </df-messenger-chat>
+              </df-messenger>
+            </body>
+            </html>
+          `}
           className="w-full h-full border-none"
-          title="Streamlit Chatbot"
+          title="Helder Chatbot"
           allow="camera; microphone"
         />
       </div>
