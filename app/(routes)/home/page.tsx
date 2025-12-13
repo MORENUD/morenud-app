@@ -20,7 +20,7 @@ interface ScanResult {
   status?: string;
   message?: string;
   data?: Record<string, unknown>;
-  user_name?: string;
+  name?: string;
   disease?: string;
   appointment_day?: number;
 }
@@ -32,7 +32,7 @@ interface UserScanData {
   uploadTimestamp: string;
   scanTimestamp: string;
   scanDate: string;
-  user_name?: string;
+  name?: string;
 }
 
 // Helper function to get user data
@@ -58,7 +58,7 @@ export default function HomePage() {
 
       if (userData?.scanResult?.appointment_day && userData.scanResult.appointment_day > 0) {
         const appointmentDays = userData.scanResult.appointment_day;
-        const userName = userData.scanResult.user_name || userData.user_name || homeTexts.notification.defaultUserName;
+        const userName = userData.scanResult.name || userData.name || homeTexts.notification.defaultUserName;
 
         // Check if notification was already shown today
         const notificationKey = `appointment_notification_${userData.scanResult.id || 'default'}_${new Date().toDateString()}`;

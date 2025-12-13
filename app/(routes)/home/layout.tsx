@@ -8,7 +8,7 @@ interface ScanResult {
   status?: string;
   message?: string;
   data?: Record<string, unknown>;
-  user_name?: string;
+  name?: string;
 }
 
 interface UserScanData {
@@ -18,7 +18,7 @@ interface UserScanData {
   uploadTimestamp: string;
   scanTimestamp: string;
   scanDate: string;
-  user_name?: string;
+  name?: string;
 }
 
 // Helper function to get user data
@@ -44,10 +44,10 @@ export default function HomeLayout({
   useEffect(() => {
     const loadUserName = () => {
       const userData = getUserScanData();
-      if (userData?.user_name) {
-        setUserName(userData.user_name);
-      } else if (userData?.scanResult?.user_name) {
-        setUserName(userData.scanResult.user_name);
+      if (userData?.name) {
+        setUserName(userData.name);
+      } else if (userData?.scanResult?.name) {
+        setUserName(userData.scanResult.name);
       }
     };
     
