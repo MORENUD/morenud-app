@@ -132,7 +132,7 @@ function BookAppointmentContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-md mx-auto bg-white min-h-screen">
+      <div className="mx-auto bg-white min-h-screen">
         {/* Header */}
         <PageHeader 
           title={bookAppointmentTexts.pageTitle} 
