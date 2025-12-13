@@ -9,6 +9,8 @@ interface PageHeaderProps {
   onBackClick?: () => void;
   className?: string;
   showStatusBar?: boolean;
+  showActionButton?: boolean;
+  onActionClick?: () => void;
 }
 
 export default function PageHeader({ 
@@ -17,7 +19,9 @@ export default function PageHeader({
   backButtonText = "Back",
   onBackClick,
   className = "",
-  showStatusBar = true
+  showStatusBar = true,
+  showActionButton = false,
+  onActionClick
 }: PageHeaderProps) {
   const router = useRouter();
 
@@ -86,7 +90,19 @@ export default function PageHeader({
             <h1 className="text-lg font-semibold text-gray-900 tracking-tight">{title}</h1>
           </div>
           
-          <div className="w-10 h-10"></div>
+          {showActionButton ? (
+            <button
+              onClick={onActionClick}
+              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors duration-200 -mr-2"
+              aria-label="Add new"
+            >
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          ) : (
+            <div className="w-10 h-10"></div>
+          )}
         </div>
       </div>
       
