@@ -1,7 +1,10 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 
 // Mock notification data (same as in the list page)
 const notifications = [
@@ -89,7 +92,7 @@ const getIcon = (iconType: string, colorClass: string) => {
   }
 };
 
-export default function NotificationDetailPage() {
+function NotificationDetailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [notification, setNotification] = useState<typeof notifications[0] | null>(null);
@@ -99,6 +102,9 @@ export default function NotificationDetailPage() {
   const [showRatingSuccess, setShowRatingSuccess] = useState(false);
 
   useEffect(() => {
+    // Handle case where searchParams might be null during prerendering
+    if (!searchParams) return;
+    
     const id = searchParams.get('id');
     if (id) {
       const found = notifications.find(n => n.id === id);
@@ -159,17 +165,22 @@ export default function NotificationDetailPage() {
     );
   };
 
-  if (!notification) {
+  // Show loading state during prerendering or when searchParams is not available
+  if (!searchParams || !notification) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500">ไม่พบการแจ้งเตือน</p>
-          <button 
-            onClick={handleBackClick}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            กลับ
-          </button>
+          <p className="text-gray-500">
+            {!searchParams ? 'กำลังโหลด...' : 'ไม่พบการแจ้งเตือน'}
+          </p>
+          {searchParams && (
+            <button 
+              onClick={handleBackClick}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              กลับ
+            </button>
+          )}
         </div>
       </div>
     );
@@ -360,5 +371,19 @@ export default function NotificationDetailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NotificationDetailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500">กำลังโหลด...</p>
+        </div>
+      </div>
+    }>
+      <NotificationDetailContent />
+    </Suspense>
   );
 }
