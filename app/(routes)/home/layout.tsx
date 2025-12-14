@@ -148,12 +148,15 @@ export default function HomeLayout({
             </div>
           )}
         </div>
-        <div className="relative">
+        <button 
+          onClick={() => router.push('/notification')}
+          className="relative hover:opacity-70 transition-opacity"
+        >
           <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9z M13.73 21a2 2 0 01-3.46 0" />
           </svg>
           <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
-        </div>
+        </button>
       </div>
 
       {/* Main Content */}
