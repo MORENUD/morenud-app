@@ -53,6 +53,16 @@ export const homeTexts = {
   // Alt texts
   altText: {
     stethoscope: 'หูฟัง'
+  },
+
+  // Settings menu
+  settings: {
+    title: 'ตั้งค่า',
+    cancelConsent: 'ยกเลิก ข้อตกลงการใช้บริการ',
+    cancelConsentConfirm: 'คุณต้องการยกเลิก ข้อตกลงการใช้บริการ หรือไม่?',
+    confirmCancel: 'ยกเลิก',
+    keepConsent: 'คงไว้',
+    success: 'ยกเลิก ข้อตกลงการใช้บริการ เรียบร้อยแล้ว'
   }
 };
 
