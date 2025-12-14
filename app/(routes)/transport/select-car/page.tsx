@@ -16,6 +16,10 @@ interface RouteInfo {
 
 export default function SelectCar() {
   const router = useRouter();
+
+  const handleBackClick = () => {
+    router.push('/home');
+  };
   
   const [selectedCarType, setSelectedCarType] = useState('comfort');
   const [selectedCaregiver, setSelectedCaregiver] = useState('basic');
@@ -137,6 +141,7 @@ export default function SelectCar() {
       <PageHeader 
         title={selectCarTexts.title}
         showBackButton={true}
+        onBackClick={handleBackClick}
       />
 
       <div className="container max-w-md mx-auto px-6 py-8 space-y-6">

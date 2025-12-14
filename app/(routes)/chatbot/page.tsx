@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import PageHeader from '../../../components/PageHeader';
 
 // Types
@@ -131,9 +132,14 @@ interface UserScanData {
 }
 
 export default function ChatbotPage() {
+  const router = useRouter();
   const [userData, setUserData] = useState<UserHealthData>({});
   const [userScanData, setUserScanData] = useState<UserScanData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const handleBackClick = () => {
+    router.push('/home');
+  };
   
   // กำหนด URL ตาม disease ที่ตรวจพบ และ alert จาก threshold_used
   const getStreamlitUrl = (): string => {
@@ -196,6 +202,7 @@ export default function ChatbotPage() {
       <PageHeader 
         title='AI Chatbot'
         backButtonText="กลับ"
+        onBackClick={handleBackClick}
       />
       <div className="flex-1 overflow-hidden">
         <iframe
