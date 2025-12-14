@@ -64,7 +64,7 @@ export default function HomeLayout({
           </div>
           <div>
             <p className="text-sm text-gray-600">Hello {userName}</p>
-            <p className="text-xs text-gray-400">Helder</p>
+            <p className="text-xs text-gray-400">Caregiver</p>
           </div>
         </div>
         <div className="relative">
