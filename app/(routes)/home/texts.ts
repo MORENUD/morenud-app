@@ -62,7 +62,10 @@ export const homeTexts = {
     cancelConsentConfirm: 'คุณต้องการยกเลิก ข้อตกลงการใช้บริการ หรือไม่?',
     confirmCancel: 'ยกเลิก',
     keepConsent: 'คงไว้',
-    success: 'ยกเลิก ข้อตกลงการใช้บริการ เรียบร้อยแล้ว'
+    success: 'ยกเลิก ข้อตกลงการใช้บริการ เรียบร้อยแล้ว',
+    logout: 'ออกจากระบบ',
+    logoutConfirm: 'คุณต้องการออกจากระบบหรือไม่?',
+    logoutSuccess: 'ออกจากระบบเรียบร้อยแล้ว'
   }
 };
 

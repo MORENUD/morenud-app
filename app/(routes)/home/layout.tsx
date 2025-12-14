@@ -102,6 +102,42 @@ export default function HomeLayout({
     handleCancelConsent();
   };
 
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: homeTexts.settings.title,
+      text: homeTexts.settings.logoutConfirm,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: homeTexts.settings.logout,
+      cancelButtonText: 'ยกเลิก',
+      reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
+      // Clear all localStorage data
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+      }
+      
+      // Show success message
+      await Swal.fire({
+        title: 'สำเร็จ!',
+        text: homeTexts.settings.logoutSuccess,
+        icon: 'success',
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#10b981',
+        timer: 1500
+      });
+
+      // Redirect to login page
+      router.push('/login');
+    }
+    
+    setShowSettingsMenu(false);
+  };
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -144,6 +180,12 @@ export default function HomeLayout({
                 className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
               >
                 {homeTexts.settings.cancelConsent}
+              </button>
+              <button
+                onClick={handleLogout}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors border-t border-gray-100"
+              >
+                {homeTexts.settings.logout}
               </button>
             </div>
           )}
